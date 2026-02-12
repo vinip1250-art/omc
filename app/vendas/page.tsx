@@ -1,4 +1,16 @@
 "use client";
+// Adicione este import no topo
+import { useApp } from "@/context/AppContext";
+
+// Dentro da função VendasPage:
+const { estoque, registrarVenda } = useApp();
+const itensParaVenda = estoque.filter(i => i.status === 'Entregue');
+
+// No botão de "Confirmar Venda", adicione a função:
+const handleVenda = (idDoItem: string) => {
+  registrarVenda(idDoItem);
+  alert("Venda realizada! Item removido do estoque.");
+};
 import { useState } from "react";
 import { BadgeDollarSign, TrendingUp, Wallet2 } from "lucide-react";
 
