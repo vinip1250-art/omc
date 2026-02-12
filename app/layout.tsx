@@ -1,7 +1,11 @@
-import { AppProvider } from "@/context/AppContext";
+import type { Metadata } from "next";
+import { AppProvider } from "../context/AppContext"; // Caminho corrigido
+import "./globals.css";
 import { LayoutDashboard, ShoppingCart, Box, BadgeDollarSign, Wallet } from "lucide-react";
 
-// ... (mantenha o restante dos imports e metadados)
+export const metadata: Metadata = {
+  title: "OMC Prod - Gestão de Milhas",
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const menuItems = [
