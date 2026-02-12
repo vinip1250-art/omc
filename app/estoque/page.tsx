@@ -1,37 +1,40 @@
-"use client";
-import { useApp } from "@/context/AppContext";
-import { Box, AlertCircle } from "lucide-react";
+import { prisma } from "../../lib/prisma"; // Caminho corrigido para fora de app
+import { confirmarEntrega } from "../actions"; // Actions na mesma pasta app
+import { PackageCheck, Timer } from "lucide-react";
 
-export default function EstoquePage() {
-  const { estoque } = useApp();
-  const itensDisponiveis = estoque.filter(item => item.status === 'Entregue');
+export default async function EstoquePage() {
+  const itens = await prisma.itemCompra.findMany({
+    where: { status: { in: ["PENDENTE", "ESTOQUE"] } },
+    orderBy: { dataCompra: 'desc' }
+  });
 
   return (
     <div className="max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        <Box className="text-orange-500" /> Itens em Estoque (Pronto para Revenda)
-      </h2>
-
-      {itensDisponiveis.length === 0 ? (
-        <div className="bg-blue-50 p-8 rounded-xl border border-blue-100 text-center">
-          <AlertCircle className="mx-auto text-blue-400 mb-2" size={40} />
-          <p className="text-blue-700">Seu estoque está vazio. Cadastre uma compra e marque como "Entregue".</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {itensDisponiveis.map((item) => (
-            <div key={item.id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-green-500">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-bold text-gray-800">{item.produto}</h4>
-                  <p className="text-xs text-gray-500">{item.programa} - {item.quantidade.toLocaleString()} milhas</p>
-                </div>
-                <span className="text-lg font-black text-slate-700">R$ {item.valorPago}</span>
+      <h2 className="text-2xl font-bold mb-6">Gestão de Inventário</h2>
+      <div className="grid gap-4">
+        {itens.map((item) => (
+          <div key={item.id} className={`p-4 rounded-lg border bg-white flex justify-between items-center ${item.status === 'ESTOQUE' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-500'}`}>
+            <div>
+              <h3 className="font-bold">{item.produto}</h3>
+              <p className="text-sm text-gray-500">{item.programa} | {item.pontosGanhos} milhas</p>
+              <div className="flex items-center gap-2 mt-1">
+                {item.status === 'ESTOQUE' ? 
+                  <span className="text-xs text-green-700 bg-green-100 px-2 py-0.5 rounded-full flex items-center gap-1"><PackageCheck size={12}/> EM ESTOQUE</span> :
+                  <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full flex items-center gap-1"><Timer size={12}/> AGUARDANDO ENTREGA</span>
+                }
               </div>
             </div>
-          ))}
-        </div>
-      )}
+            <div className="text-right">
+              <p className="font-bold">R$ {item.valorPago.toFixed(2)}</p>
+              {item.status === 'PENDENTE' && (
+                <form action={async () => { "use server"; await confirmarEntrega(item.id); }}>
+                  <button className="text-xs text-blue-600 underline mt-2 hover:text-blue-800">Confirmar Recebimento</button>
+                </form>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
