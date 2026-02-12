@@ -1,37 +1,19 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-interface ItemEstoque {
-  id: string;
-  produto: string;
-  quantidade: number;
-  valorPago: number;
-  programa: string;
-  status: 'Pendente' | 'Entregue';
-}
-
 interface AppContextType {
-  estoque: ItemEstoque[];
-  adicionarCompra: (item: ItemEstoque) => void;
-  registrarVenda: (id: string) => void;
+  // Aqui você pode manter estados temporários de UI se precisar
+  isSidebarOpen: boolean;
+  setSidebarOpen: (val: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [estoque, setEstoque] = useState<ItemEstoque[]>([]);
-
-  const adicionarCompra = (item: ItemEstoque) => {
-    setEstoque((prev) => [...prev, item]);
-  };
-
-  const registrarVenda = (id: string) => {
-    // Remove o item do estoque ao vender
-    setEstoque((prev) => prev.filter(item => item.id !== id));
-  };
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <AppContext.Provider value={{ estoque, adicionarCompra, registrarVenda }}>
+    <AppContext.Provider value={{ isSidebarOpen, setSidebarOpen }}>
       {children}
     </AppContext.Provider>
   );
