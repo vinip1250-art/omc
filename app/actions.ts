@@ -1,5 +1,5 @@
 "use server"
-import { prisma } from "../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function cadastrarCompra(formData: FormData) {
@@ -16,20 +16,32 @@ export async function cadastrarCompra(formData: FormData) {
   revalidatePath("/");
 }
 
+export async function confirmarEntrega(id: string) {
+  await prisma.itemCompra.update({
+    where: { id },
+    data: { status: "ESTOQUE" }
+  });
+  revalidatePath("/estoque");
+}
+
 export async function registrarVenda(formData: FormData) {
   const itemId = formData.get("itemId") as string;
   const valorVenda = parseFloat(formData.get("valorVenda") as string);
 
   await prisma.$transaction([
-    prisma.venda.create({ data: { itemCompraId: itemId, valorVenda } }),
-    prisma.itemCompra.update({ where: { id: itemId }, data: { status: "VENDIDO" } })
+    prisma.venda.create({
+      data: {
+        itemCompraId: itemId,
+        valorVenda: valorVenda
+      }
+    }),
+    prisma.itemCompra.update({
+      where: { id: itemId },
+      data: { status: "VENDIDO" }
+    })
   ]);
 
   revalidatePath("/estoque");
   revalidatePath("/vendas");
-}
-
-export async function confirmarEntrega(id: string) {
-  await prisma.itemCompra.update({ where: { id }, data: { status: "ESTOQUE" } });
-  revalidatePath("/estoque");
+  revalidatePath("/");
 }
