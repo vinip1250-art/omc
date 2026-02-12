@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AppProvider } from "@/context/AppContext";
+import { AppProvider } from "../context/AppContext";
 import "./globals.css";
 import { LayoutDashboard, ShoppingCart, Box, BadgeDollarSign } from "lucide-react";
 
