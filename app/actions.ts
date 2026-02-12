@@ -1,5 +1,5 @@
 "use server"
-import { prisma } from "@/lib/prisma";
+import { prisma } from "../lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function cadastrarCompra(formData: FormData) {
@@ -13,7 +13,6 @@ export async function cadastrarCompra(formData: FormData) {
     }
   });
   revalidatePath("/estoque");
-  revalidatePath("/");
 }
 
 export async function confirmarEntrega(id: string) {
@@ -30,10 +29,7 @@ export async function registrarVenda(formData: FormData) {
 
   await prisma.$transaction([
     prisma.venda.create({
-      data: {
-        itemCompraId: itemId,
-        valorVenda: valorVenda
-      }
+      data: { itemCompraId: itemId, valorVenda: valorVenda }
     }),
     prisma.itemCompra.update({
       where: { id: itemId },
@@ -43,5 +39,4 @@ export async function registrarVenda(formData: FormData) {
 
   revalidatePath("/estoque");
   revalidatePath("/vendas");
-  revalidatePath("/");
 }
